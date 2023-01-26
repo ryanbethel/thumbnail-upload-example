@@ -74,7 +74,6 @@ export default function Html ({ html, state }) {
       resize(e) {
         console.log(e.target.files)
         if (!e.target.files.length) return;
-        let dataurl
         if (e.target.files) {
           let imageFile = e.target.files[0]
           const reader = new FileReader()
@@ -96,21 +95,21 @@ export default function Html ({ html, state }) {
               canvas.height = outHeight
               const context = canvas.getContext("2d")
               context.drawImage(image, 0, 0, outWidth, outHeight)
-              dataurl = canvas.toDataURL(imageFile.type)
+              const dataurl = canvas.toDataURL(imageFile.type)
               this.imagePreview.src = dataurl
+              let fileName = 'client-side-filename'
+              let blob = this.blobFromURL(dataurl)
+              let file = new File([blob], fileName,{type:blob.type, lastModified:new Date().getTime()}, 'utf-8')
+              let container = new DataTransfer() 
+              container.items.add(file)
+              this.scaledImageInput.files = container.files
+              this.imageInput.value = null
             }
             image.src = e.target.result
           }
           reader.readAsDataURL(imageFile)
         }
 
-        let fileName = 'client-side-filename'
-        let blob = this.blobFromURL(dataurl)
-        let file = new File([blob], fileName,{type:blob.type, lastModified:new Date().getTime()}, 'utf-8')
-        let container = new DataTransfer() 
-        container.items.add(file)
-        this.scaledImageInput.files = container.files
-        this.imageInput.value = null
       }
 
 
