@@ -9,7 +9,7 @@ const isLocal = (env !== 'staging' && env !== 'production')
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
-function escapeRegex (string) {return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') }
+function escapeRegex (string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') }
 const uploadFolderName = '.uploaded-images' 
 const pathPrefix = '/image' // partial path to remove
 const rootDir = join(__dirname,'..','..','..')

@@ -5,11 +5,13 @@
 export default function Html ({ html, state }) {
   const { store } = state
   const profile = store.profile || {}
+  const problems = store.problems || {}
 
   return html`
     <main class="container">
       <article>
       <h1>New Profile</h1>
+      ${Object.keys(problems).length ? '<p style="color:red">There was a problem with the form<p>' : ""}
       <form action="/profiles/new" method="POST" enctype=multipart/form-data>
         <label>First Name
           <input type="text" name="firstname" value="${profile?.firstname}"/> 

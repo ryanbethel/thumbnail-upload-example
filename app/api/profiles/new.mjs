@@ -15,19 +15,24 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 
 export async function get (req) {
-  const token = crypto.randomUUID()
+  const problems = req.session.problems || {}
+  const profile = req.session.profile || {}
+  const {problems:oldProblems, profile:oldProfile, ...newSession} = req.session
+  const newToken = crypto.randomUUID()
   return {
-    session:{...req.session, profileSubmitToken:token}
+    session:{...newSession, profileSubmitToken:newToken},
+    json: {problems,profile}
   }
 }
 
 export async function post (req) {
+  // remove profile meta data from session
+  const {problems:oldProblems, profile:oldProfile, profileSubmitToken, ...newSession} = req.session
 
-  const profileSubmitToken = req.session?.profileSubmitToken
   const submitting = await data.get({table:'token', key:profileSubmitToken})
   if (submitting) {
     return {
-      session:{...req.session, profileSubmitToken}, //submit token should already be present
+      session:{...req.session, profileSubmitToken},  
       location: '/profiles'
     }
   }
@@ -40,20 +45,23 @@ export async function post (req) {
   let problems = {}
   let firstname, lastname, filename
   try {
+    // Validation
     firstname = parsedForm?.firstname
     if (firstname ==='') problems.firstname = 'First name should not be blank'
     lastname = parsedForm?.lastname
     if (lastname ==='') problems.lastname = 'Last name should not be blank'
 
-    filename = crypto.randomUUID()
-
+    // Get uploaded image
     const preprocessed = parsedForm.files?.find(file=>file.fieldname==='processed-picture')
     const unprocessed = parsedForm.files?.find(file=>file.fieldname==='picture')
 
+    // Use clientside processed image or resize on server
     const picture = preprocessed || unprocessed
     const pictureBuffer = picture.content
     const profilePicture = preprocessed ? pictureBuffer : await resize(pictureBuffer, 350)
 
+    // Save the image to S3 bucket (or temp folder for local dev)
+    filename = crypto.randomUUID()
     if (isLive) {
       const client = new S3Client({ region: REGION });
       const command = new PutObjectCommand({ Bucket:staticDir, Key:`${imageFolder}/${filename}`, Body: profilePicture})
@@ -63,33 +71,31 @@ export async function post (req) {
       const imageDir = join(__dirname,'..','..','..',imageFolder)
       try {
         fs.mkdirSync(imageDir)
-      } catch(e){
-      }
+      } catch(e){ }
       fs.writeFileSync(join(imageDir,`${filename}`),profilePicture)
     }
 
-    await data.set({table:'profile', firstname, lastname, filename, submitToken:profileSubmitToken})
   }
   catch(error){
     problems.form = 'there was an error'
   }
   
-  const {problems:oldProblems,...newSession} = req.session
+  // If validation problems found redirect back
   if (Object.keys(problems).length) {
     return {
       session: {...newSession, problems, profile:{firstname,lastname}},
       location: '/profiles/new'
     }
   }
+  // Store profile and redirect to profiles list view
   else {
+    await data.set({table:'profile', firstname, lastname, filename, submitToken:profileSubmitToken})
     return {
       session: {...newSession},
       location: '/profiles'
     }
   }
 }
-
-
 
 async function resize(buffer, size){
   const vips = await Vips()
