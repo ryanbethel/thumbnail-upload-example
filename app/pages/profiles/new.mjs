@@ -44,31 +44,16 @@ export default function Html ({ html, state }) {
         this.scaledImageInput = this.querySelector('input[name=processed-picture]')
 
         this.resize = this.resize.bind(this)
-        this.blobFromURL = this.blobFromURL.bind(this)
-        this.handleSubmit = this.handleSubmit.bind(this)
+        this.dataURLtoBlob = this.dataURLtoBlob.bind(this)
         this.tempDisableSubmit = this.tempDisableSubmit.bind(this)
 
-
-        this.form.addEventListener('submit', (e)=>this.handleSubmit(e))
+        this.form.addEventListener('submit', this.tempDisableSubmit)
         this.imageInput.addEventListener('change', (e)=>this.resize(e))       
       }
 
       tempDisableSubmit() {
         this.submitButton.disabled = true
         setTimeout(() => {this.submitButton.disabled = false }, 5000)
-      }
-
-      handleSubmit (e) {
-        this.tempDisableSubmit()
-        //e.preventDefault()
-	      // let formObject = new FormData(this.form)
-	      // formObject.set("processed-picture", this.blobFromURL(this.scaledImageURI), 'client-resized-filename')
-	      // formObject.delete("picture")
-        // const response = await fetch('/profiles/new', {
-        //   method: 'POST',
-        //   body: formObject
-        // })
-        // console.log(response)
       }
 
       resize(e) {
@@ -95,10 +80,13 @@ export default function Html ({ html, state }) {
               canvas.height = outHeight
               const context = canvas.getContext("2d")
               context.drawImage(image, 0, 0, outWidth, outHeight)
+
               const dataurl = canvas.toDataURL(imageFile.type)
+
               this.imagePreview.src = dataurl
+
               let fileName = 'client-side-filename'
-              let blob = this.blobFromURL(dataurl)
+              let blob = this.dataURLtoBlob(dataurl)
               let file = new File([blob], fileName,{type:blob.type, lastModified:new Date().getTime()}, 'utf-8')
               let container = new DataTransfer() 
               container.items.add(file)
@@ -113,28 +101,14 @@ export default function Html ({ html, state }) {
       }
 
 
-
-	    blobFromURL(inputURI) {
-    		let binaryVal
-    		const inputMIME = inputURI.split(',')[0].split(':')[1].split(';')[0]
-
-    		if (inputURI.split(',')[0].indexOf('base64') >= 0) {
-    			binaryVal = atob(inputURI.split(',')[1])
+      dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+          bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+          u8arr[n] = bstr.charCodeAt(n);
         }
-    		else {
-    			binaryVal = unescape(inputURI.split(',')[1])
-        }
-
-    		let blobArray = []
-    		for (var index = 0; index < binaryVal.length; index++) {
-    			blobArray.push(binaryVal.charCodeAt(index))
-    		}
-
-    		return new Blob([blobArray], {
-    			type: inputMIME
-    		})
-    	}
-
+        return new Blob([u8arr], {type:mime});
+      }
       
     }
 

@@ -14,7 +14,7 @@ export default function Html ({ html, state }) {
   <p class="pb-2"><strong class="capitalize">firstname: </strong>${item?.firstname || ''}</p>
   <p class="pb-2"><strong class="capitalize">lastname: </strong>${item?.lastname || ''}</p>
   <p class="pb-2"><strong class="capitalize">key: </strong>${item?.key || ''}</p>
-  <img src="/image/${item?.filename}.jpeg" alt="profile picture"/>
+  <img src="/image/${item?.filename}" alt="profile picture"/>
 </div>
 <p class="mb-1">
   <enhance-link href="/profiles/${item.key}">Edit this profile</enhance-link>

@@ -59,7 +59,7 @@ export async function post (req) {
 
       if (isLive) {
         const client = new S3Client({ region: REGION });
-        const command = new PutObjectCommand({ Bucket:staticDir, Key:`${imageFolder}/${filename}.jpeg`, Body: profilePicture})
+        const command = new PutObjectCommand({ Bucket:staticDir, Key:`${imageFolder}/${filename}`, Body: profilePicture})
         await client.send(command)
       }
       else {
@@ -68,7 +68,7 @@ export async function post (req) {
           fs.mkdirSync(imageDir)
         } catch(e){
         }
-        fs.writeFileSync(join(imageDir,`${filename}.jpeg`),profilePicture)
+        fs.writeFileSync(join(imageDir,`${filename}`),profilePicture)
       }
 
       await data.set({table:'profile', firstname, lastname, filename, submitToken:profileSubmitToken})
