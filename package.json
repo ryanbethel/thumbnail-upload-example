@@ -35,11 +35,9 @@
     }
   },
   "dependencies": {
-    "@begin/validator": "^0.0.10",
     "@enhance/arc-plugin-enhance": "^4.3.3",
-    "@enhance/form-elements": "github:enhance-dev/form-elements",
+    "file-type": "^18.2.0",
     "lambda-multipart-parser": "^1.0.1",
-    "mime-types": "^2.1.35",
     "wasm-vips": "^0.0.4"
   }
 }
