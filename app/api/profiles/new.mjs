@@ -1,4 +1,4 @@
-import {join} from 'path'
+import { join } from 'path'
 import multipart from 'lambda-multipart-parser'
 import crypto from 'crypto'
 import Vips from 'wasm-vips'
