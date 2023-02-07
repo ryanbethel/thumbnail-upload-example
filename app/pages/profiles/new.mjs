@@ -1,23 +1,15 @@
-// View documentation at: https://enhance.dev/docs/learn/starter-project/pages
-/**
-  * @type {import('@enhance/types').EnhanceElemFn}
-  */
 export default function Html ({ html, state }) {
-  const { store } = state
-  const profile = store.profile || {}
-  const problems = store.problems || {}
 
   return html`
     <main class="container">
       <article>
       <h1>New Profile</h1>
-      ${Object.keys(problems).length ? '<p style="color:red">There was a problem with the form<p>' : ""}
       <form action="/profiles/new" method="POST" enctype=multipart/form-data>
         <label>First Name
-          <input type="text" name="firstname" value="${profile?.firstname}"/> 
+          <input type="text" name="firstname"/> 
         </label>
         <label>First Name
-          <input type="text" name="lastname" value="${profile?.lastname}"/> 
+          <input type="text" name="lastname"/> 
         </label>
         <label>
           Profile Picture
@@ -82,10 +74,10 @@ export default function Html ({ html, state }) {
               this.imagePreview.src = dataurl
               this.imagePreview.classList.remove("hidden")
 
-              let fileName = 'scaled-image'
-              let blob = this.dataURLtoBlob(dataurl)
-              let file = new File([blob], fileName,{type:blob.type, lastModified:new Date().getTime()}, 'utf-8')
-              let container = new DataTransfer() 
+              const fileName = 'scaled-image'
+              const blob = this.dataURLtoBlob(dataurl)
+              const file = new File([blob], fileName,{type:blob.type, lastModified:new Date().getTime()}, 'utf-8')
+              const container = new DataTransfer() 
               container.items.add(file)
               this.scaledImageInput.files = container.files
               this.imageInput.value = null
@@ -97,15 +89,15 @@ export default function Html ({ html, state }) {
       }
 
       dataURLtoBlob(dataurl) {
-        let arr = dataurl.split(',') 
-        const mime = arr[0].match(/:(.*?);/)[1]
-        const bstr = atob(arr[1])
-        let n = bstr.length
-        const u8arr = new Uint8Array(n);
+        let dataUrlParts = dataurl.split(',') 
+        const mime = dataUrlParts[0].match(/:(.*?);/)[1]
+        const binary = atob(dataUrlParts[1])
+        let n = binary.length
+        const binaryArray = new Uint8Array(n);
         while(n--){
-          u8arr[n] = bstr.charCodeAt(n);
+          binaryArray[n] = binary.charCodeAt(n);
         }
-        return new Blob([u8arr], {type:mime});
+        return new Blob([binaryArray], {type:mime});
       }
     }
 
