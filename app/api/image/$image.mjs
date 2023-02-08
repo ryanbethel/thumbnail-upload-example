@@ -2,10 +2,7 @@ import asap from '@architect/asap'
 const env = process.env.ARC_ENV 
 const isLocal = env === 'testing'
 
-function escapeRegex (string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') }
-
 const uploadFolderName = '.uploaded-images' 
-const pathPrefix = '/image' // partial path to remove
 
 export async function get (req) {
   try {
@@ -32,11 +29,13 @@ export async function get (req) {
 
     }
     else {
+      function escapeRegex (string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') }
+      const pathPrefix = '/image' // partial path to remove
       const config = {
         assets: {},
         cacheControl: 'max-age=31536000',
       }
-      req.rawPath = req.rawPath.replace(escapeRegex(pathPrefix), uploadFolderName)
+      req.rawPath = req.rawPath.replace(escapeRegex(pathPrefix), '/'+uploadFolderName)
       return asap(config)(req)
     }
   }

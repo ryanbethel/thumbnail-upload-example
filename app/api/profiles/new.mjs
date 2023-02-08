@@ -60,11 +60,11 @@ export async function post (req) {
     try {
       mkdirSync(imageDir)
     } catch(e){ }
-    writeFileSync(join(imageDir,filename),profilePicture)
+    writeFileSync(join(imageDir,filename+'.jpeg'),profilePicture)
   }
   else {
     const client = new S3Client({ region: REGION });
-    const command = new PutObjectCommand({ Bucket:staticDir, Key:`${imageFolder}/${filename}`, Body: profilePicture})
+    const command = new PutObjectCommand({ Bucket:staticDir, Key:`${imageFolder}/${filename}.jpeg`, Body: profilePicture})
     await client.send(command)
   }
 
